@@ -1,7 +1,6 @@
 import pygame
 import numpy as np
 
-#브레젠험 알고리즘을 사용해서 선을 그리는 함수를 작성해보세요
 #- input : surface, x1, y1, x2, y2, color
 screenWidth = 1280
 screenHeight = 720
@@ -10,26 +9,31 @@ cameraY = 20
  
 
 # 좌표계 변경
-def world_to_view_coordinates(x, y):
+def view_coordinates(x, y):
     vertex_world = np.array([
         (x),
         (y),
         (1)
     ])
+
     view_matrix = np.array([
         (1, 0, -cameraX),
         (0, 1, -cameraY),
         (0, 0, 1),
     ])
+
     vertex_world = np.matmul(view_matrix, vertex_world)
     
     return (vertex_world[0], vertex_world[1])
 
+
 # 좌표계 변경
-def world_to_screen_coordinates(x, y):
+def screen_coordinates(x, y):
     screen_x = round(screenWidth / 2 + x)
     screen_y = round(screenHeight / 2 - y)
+
     return (screen_x, screen_y)
+
 
 def bresenham(surface, x1, y1, x2, y2, color):  
     x = round(x1)
@@ -45,9 +49,9 @@ def bresenham(surface, x1, y1, x2, y2, color):
     if(dx >= dy):
         P = (-2 * dy) + dx
         for x in range(round(x1), round(x2 + 1)):
-            wX, wY = world_to_screen_coordinates(x, y)
-            vX, vY = world_to_view_coordinates(wX, wY)
-            surface.set_at((vX, vY), color)
+            vX, vY = view_coordinates(x, y)
+            wX, wY = screen_coordinates(vX, vY)
+            surface.set_at((wX, wY), color)
 
             if (P >= 0):
                 P += (-2 * dy)
@@ -57,16 +61,18 @@ def bresenham(surface, x1, y1, x2, y2, color):
     else:
         P = (-2 * dx) + dy
         for y in range(round(y1), round(y2 + 1)):
-            wX, wY = world_to_screen_coordinates(x, y)
-            vX, vY = world_to_view_coordinates(wX, wY)
-            surface.set_at((vX, vY), color)
+            vX, vY = view_coordinates(x, y)
+            wX, wY = screen_coordinates(vX, vY)
+            surface.set_at((wX, wY), color)
 
             if (P >= 0):
                 P += (-2 * dx)
             else:
                 x += sx
                 P += (-2 * dx) + (2 * dy)
+                
     return
+
 
 def square(surface, vertices, color1, color2):
     squarePoints = [(vertices[0][0], vertices[0][1]), (vertices[1][0], vertices[1][1]), (vertices[2][0], vertices[2][1]), (vertices[3][0], vertices[3][1])]
@@ -113,24 +119,24 @@ while running:
         key_input = pygame.key.get_pressed()
         if key_input[pygame.K_UP]:
             cameraY = cameraY + 10
-            print("up")
+            # print("up")
         if key_input[pygame.K_LEFT]:
             cameraX = cameraX + 10
-            print("left")
+            # print("left")
         if key_input[pygame.K_DOWN]:
             cameraY = cameraY - 10
-            print("down")
+            # print("down")
         if key_input[pygame.K_RIGHT]:
             cameraX = cameraX - 10
-            print("right")
+            # print("right")
 
     screen.fill(BACKGROUND_COLOR)
 
     for x in range (0, 720, 10):
-        pygame.draw.line(screen, LINE_COLOR , world_to_view_coordinates(0, x), world_to_view_coordinates(1280, x), 1)
+        pygame.draw.line(screen, LINE_COLOR , view_coordinates(0, x), view_coordinates(1280, x), 1)
 
     for y in range (0, 1280, 10):
-        pygame.draw.line(screen, LINE_COLOR , world_to_view_coordinates(y, 0), world_to_view_coordinates(y, 720), 1)
+        pygame.draw.line(screen, LINE_COLOR , view_coordinates(y, 0), view_coordinates(y, 720), 1)
 
     pygame.draw.line(screen, LINE_COLOR2 , (0, 360), (1280, 360), 2)
     pygame.draw.line(screen, LINE_COLOR2 , (640, 0), (640, 720), 2)
